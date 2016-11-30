@@ -1,0 +1,74 @@
+*{margin: 0;padding: 0;}
+/* 包裹层 */
+.wrap{width: 100%;
+      height: 600px;
+      position: absolute;
+      top: 50%;
+      margin-top: -300px;
+      background:#555;
+       perspective: 800px;
+      -webkit-perspective: 800px;
+             }
+
+/*  照片 */
+.photo{position: absolute;
+     top: 50%;
+     left: 50%;
+     float: left;
+     width: 400px;
+    /* -webkit-transform:translate(-50%,-50%);
+     -ms-transform:translate(-50%,-50%);*/
+     margin-left: -130px;
+     margin-top: -160px;
+     }
+.wrap .side{width: 100%;
+	     height: 100%;
+	     padding: 5px;
+	     box-sizing:border-box;
+	     -moz-box-sizing:border-box;
+	     -webkit-box-sizing:border-box;
+       backface-visibility:hidden;
+     /*背面隐藏 */
+       -webkit-backface-visibility:hidden;    /* Chrome 和 Safari */
+       -moz-backface-visibility:hidden;     /* Firefox */
+       -ms-backface-visibility:hidden;     /* Internet Explorer */
+          }
+  /*  照片正面 */
+ .side-front{transform: rotateY(0deg);
+            -webkit-transform: rotateY(0deg);
+            -moz-transform: rotateY(0deg);
+            -o-transform: rotateY(0deg);
+            -ms-transform: rotateY(0deg);
+ } 
+ .photo { width: 260px;
+          height: 320px;
+          background: #eee;}
+ .photo .image{width: 100%;
+               height: 250px;
+              line-height: 250px;
+              overflow: hidden;}
+ .photo img{width: 100%;
+            height: 100%;}
+ .photo .caption{
+ 	           text-align: center;
+             font-size: 16px;
+             line-height: 50px;}
+     /*  照片背面*/
+ .side-back{transform: rotateY(180deg);
+            -webkit-transform: rotateY(180deg);
+            -moz-transform: rotateY(180deg);
+            -o-transform: rotateY(180deg);
+            -ms-transform: rotateY(180deg);
+            /*align-items: center;
+            display: -webkit-flex;*/}
+ .side .briefing{line-height:1.5em;}
+
+/* 页面翻转 */
+ .photo-wrap{height: 100%;
+            width: 100%;
+            position: absolute;
+           -webkit-transform-style:preserve-3d;}
+ .photo-front .photo-wrap{transform: rotateY(0deg);
+                         -webkit-transform:rotateY(0deg);}
+ .photo-back .photo-wrap{transform: rotateY(180deg);
+                         -webkit-transform:rotateY(180deg);}
