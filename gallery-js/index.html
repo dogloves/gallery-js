@@ -10,7 +10,8 @@
 	       color: #555;
 	       font-family: 'Avenir Next';
 	       font-size: 14px;
-	       -webkit-font-smoothing:antialiased;}
+	       -webkit-font-smoothing:antialiased;
+	   }
 	   .wrap{width: 100%;
 		    height: 600px;
 		    position: absolute;
@@ -18,12 +19,24 @@
 		    margin-top: -300px;
 		    background: #333;
 		    -webkit-perspective:800px;
-		    overflow: hidden;}
+		    overflow: hidden;
+		}
 		.photo{width: 260px;
 			height: 320px;
 			box-shadow: 0 0 1px rgba(0 0 0 .01);
 			position: absolute;
-			z-index: 1;}
+			z-index: 1;
+		    transition: all .6s;
+			-webkit-transition: all .6s;
+			-moz-transition: all .6s;
+			-o-transition: all .6s;
+		}
+		.photo{
+			left: 50%;
+			top: 50%;
+			margin-left: -130px;
+		    margin-top: -160px;
+		}
 		.photo .side{width: 100%;
 			height: 100%;
 			background:#eee;
@@ -31,13 +44,15 @@
 			top:0;
 			left: 0;
 			padding: 10px;
-			box-sizing:border-box;}
+			box-sizing:border-box;
+		}
 		.side-front .image{height: 250px;
 			line-height: 250px;
 			overflow: hidden;
 		}
 		.side-front img{width:100%;
-		       height: 100%;}
+		       height: 100%;
+		   }
 		 .side-front .caption{
 		 	height: 50px;
 		 	line-height: 50px;
@@ -63,10 +78,10 @@
 			 	width: 100%;
 			 	transform-style: preserve-3d;
 			 	-webkit-transform-style:preserve-3d;
-			 	transition: all .6s;
-			 	-webkit-transition: all .6s;
-			 	-moz-transition: all .6s;
-			 	-o-transition: all .6s;
+			 	transition: all .6s ease-in-out;
+			 	-webkit-transition: all .6s ease-in-out;
+			 	-moz-transition: all .6s ease-in-out;
+			 	-o-transition: all .6s ease-in-out;
 			 }
 	 .photo-wrap .side-front{
 	 	       -webkit-transform:rotateY(0deg);
@@ -79,11 +94,55 @@
 			  	-webkit-backface-visibility:hidden;
 	       }
 	  .photo_front .photo-wrap{
-	           -webkit-transform:rotateY(0deg);
-	       }
-	   .photo_back .photo-wrap{
-	           -webkit-transform:rotateY(180deg);
-	       }
+	 	 -webkit-transform: rotateY(0deg);
+	 }
+	   
+	 .photo_back .photo-wrap{
+	 	 -webkit-transform:rotateY(180deg); 
+	 }
+
+	 /*  旋转右移样式 */
+	 /* roateY实现反转控制，transform-origin设置反转轴，translate设置右移 */
+	 .photo-wrap{
+	 	-webkit-transform-origin:0 50%;
+	 }
+	 .photo_front .photo-wrap{
+	 	 -webkit-transform:translate(0px,0px) rotateY(0deg);
+	 }
+	     /*  向右移动距离必须刚好是海报宽度，少于会往左翻，多了会右移 */
+	 .photo_back .photo-wrap{
+	 	 -webkit-transform:translate(260px,0px) rotateY(180deg); 
+	 }
+	 /*  控制按钮栏样式设置 */
+	 .nav{
+	 	width: 50%;
+	 	height: 30px;
+	 	line-height: 30px;
+	 	position: absolute;
+	 	left: 25%;
+	 	bottom: 20px;
+	 	background: #fff;
+	 	text-align: center;
+	 	z-index: 999;
+	 	border-radius: 10px;
+	 	opacity:0.5;
+	 	-moz-opacity:0.5;
+	 	filter:alpha(opacity=50); 
+	 }
+	 .nav .i{width: 30px;
+		  height: 30px;
+		  display: inline-block;
+		  cursor: pointer;
+		  border-radius: 50%;
+		  transform: scale(1);
+		 -webkit-transform: scale(.5);
+		 background: #666;
+		}
+	 .nav .i_current{
+	 	  transform: scale(1);
+	 	 -webkit-transform: scale(1);
+	 }
+	 .nav .i_back{}
    	</style>
 </head>
 <body onselectst="renturn false">
@@ -121,7 +180,8 @@
      var data=data;//获取图片信息数组
      function addPhotos(){
      	var template=g('#wrap').innerHTML;
-     	var html=[];
+     	var html=[];// 新建数组存放海报信息
+     	var nav=[];//新建数组存放导航菜单信息
      	for(s in data){ //遍历数组
      		var _html=template
      		          .replace('{{index}}',s)
@@ -129,9 +189,12 @@
      		          .replace('{{caption}}',data[s].caption)
      		          .replace('{{desc}}',data[s].desc);
             html.push(_html);
+            nav.push('<span class="i"  id="nav_'+s+'"  onclick="turn( g(\'#photo_'+s+'\') )" >&nbsp</span>');// 每个海报对应的导航栏的html元素放入数组，并且绑定点击事件。导航按钮用span标签，内容为一个空格。
      	}
+     	html.push('<div class="nav">'+nav.join('')+'</div>')//插入导航栏
      	g('#wrap').innerHTML=html.join('');//插入页面
-     	rsort(random([0,data.length]));//排列海报
+
+     	rsort(random([0,data.length]));//调用rosort()函数排列海报,随机选择一张海报居中
      }
      addPhotos();
 
@@ -162,7 +225,17 @@
 	    var photos=[];
 	    for(i=0;i<_photo.length;i++){
 	    	_photo[i].className=_photo[i].className.replace(/\s*photo_center\s*/,''); //用正则表达式删除照片的居中类名
-	    	photos.push(_photo[i]);
+	    	_photo[i].className=_photo[i].className.replace(/\s*photo_back\s*/,' photo_front '); //用正则表达式删除照片的反面类名
+                //清除位置和旋转样式
+	        _photo[i].style.left='';
+	    	_photo[i].style.top='';
+	    	_photo[i].style.transform='rotate(0deg) scale(1.2)'; //将所有海报缩放比例为1.2
+	    	_photo[i].style['-webkit-transform']='rotate(0deg) scale(1.2)';
+	    	_photo[i].style['-ms-transform']='rotate(0deg) scale(1.2)';
+	    	_photo[i].style['-o-transform']='rotate(0deg) scale(1.2)';
+	    	_photo[i].style['-msz-transform']='rotate(0deg) scale(1.2)';
+
+	    	photos.push(_photo[i]); //放入数组
 	    }
 	    /*为选中的海报添加居中属性*/
         var photo_center=g('#photo_'+n);
@@ -178,23 +251,43 @@
 	          	var photo=photo_left[s];
 	    	   photo.style.left=random(ranges.left.x)+'px';
 	    	   photo.style.top=random(ranges.left.y)+'px';
+	    	   photo.style.transform='rotate('+random([0,180])+'deg) scale(1)';//给海报随机的旋转角度，缩放比例为1
+	    	   photo.style['-webkit-transform']='rotate('+random([0,180])+'deg) scale(1)';
+	    	   photo.style['-ms-transform']='rotate('+random([0,180])+'deg) scale(1)';
+	    	   photo.style['-msz-transform']='rotate('+random([0,180])+'deg) scale(1)';
+	    	   photo.style['-o-transform']='rotate('+random([0,180])+'deg) scale(1) ';
             }
          //为右侧每个海报随机定位
              for(s in photo_right){
 	          	var photo=photo_right[s];
 	    	   photo.style.left=random(ranges.right.x)+'px';
 	    	   photo.style.top=random(ranges.right.y)+'px';
+	    	   photo.style.transform='rotate('+random([0,180])+'deg) scale(1)';//给海报随机的旋转角度，缩放比例为1
+	    	   photo.style['-webkit-transform']='rotate('+random([0,180])+'deg) scale(1)';
+	    	   photo.style['-ms-transform']='rotate('+random([0,180])+'deg) scale(1)';
+	    	   photo.style['-msz-transform']='rotate('+random([0,180])+'deg) scale(1)';
+	    	   photo.style['-o-transform']='rotate('+random([0,180])+'deg) scale(1)';
             }
+           //导航菜单按钮变化
+           var navs=g(".i");
+           for(s=0;s<navs.length;s++){
+              navs[s].className = navs[s].className.replace(/\s*i_current\s*/,'');//清除按钮的被选中样式
+           }
+             g('#nav_'+n).className+=' i_current '; //为选中的海报按钮增加选中样式
     }
 
 /*5、控制翻转*/
 	function turn(elem) {
 		var cls=elem.className;
+		var n=elem.id.split('_')[1]; //利用split方法分割当前海报的id，取得海报的编号
+		if(!/photo_center/.test(cls)){ 
+           return rsort(n); //如果当年海报没有居中，则返回rosort()函数重新排序，将当前海居中。
+		}
 		if (/photo_front/.test(cls)) {
-			cls=cls.replace(/photo_front/,'photo_back')
+			cls=cls.replace(/\s*photo_front\s*/,' photo_back ') //利用正则表达式将正面海报改成反面
 		}
 		else{
-			cls=cls.replace(/photo_back/,'photo_front')
+			cls=cls.replace(/\s*photo_back\s*/,' photo_front ') //利用正则表达式将反面海报改成正面
 		}
 		return elem.className=cls;
 	}
